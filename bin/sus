@@ -3,13 +3,13 @@
 require_relative '../lib/sus/config'
 config = Sus::Config.load
 
+config.before_tests
+
 require_relative '../lib/sus'
 filter = Sus::Filter.new
 assertions = Sus::Assertions.default(output: Sus::Output::Null.new)
 
 config.prepare(filter)
-
-config.before_tests(assertions)
 filter.call(assertions)
 config.after_tests(assertions)
 

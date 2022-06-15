@@ -2,6 +2,7 @@
 
 require_relative '../lib/sus/config'
 config = Sus::Config.load
+config.before_tests
 
 Result = Struct.new(:job, :assertions)
 
@@ -28,7 +29,6 @@ loader = Thread.new do
 end
 
 top = Sus::Assertions.new(output: Sus::Output::Null.new)
-config.before_tests(top)
 
 aggregation = Thread.new do
 	while result = results.pop
