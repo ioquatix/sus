@@ -1,0 +1,84 @@
+name: Coverage
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+env:
+  CONSOLE_OUTPUT: Text
+  COVERAGE: PartialSummary
+
+jobs:
+  test-sus:
+    name: ${{matrix.ruby}} on ${{matrix.os}}
+    runs-on: ${{matrix.os}}-latest
+    
+    strategy:
+      matrix:
+        os:
+          - ubuntu
+        
+        ruby:
+          - "3.1"
+    
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{matrix.ruby}}
+        bundler-cache: true
+    
+    - name: Run tests
+      timeout-minutes: 5
+      run: bundle exec bin/sus
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: test-sus-${{matrix.os}}-${{matrix.ruby}}
+        path: .covered.db
+  
+  test-sus-parallel:
+    name: ${{matrix.ruby}} on ${{matrix.os}}
+    runs-on: ${{matrix.os}}-latest
+    
+    strategy:
+      matrix:
+        os:
+          - ubuntu
+        
+        ruby:
+          - "3.1"
+    
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{matrix.ruby}}
+        bundler-cache: true
+    
+    - name: Run tests
+      timeout-minutes: 5
+      run: bundle exec bin/sus-parallel
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: test-sus-parallel-${{matrix.os}}-${{matrix.ruby}}
+        path: .covered.db
+  
+  validate:
+    needs: [test-sus, test-sus-parallel]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: "3.1"
+        bundler-cache: true
+    
+    - uses: actions/download-artifact@v3
+    
+    - name: Validate coverage
+      timeout-minutes: 5
+      run: bundle exec bake covered:validate --paths */.covered.db \;
