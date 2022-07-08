@@ -31,7 +31,6 @@ module Sus
 			def initialize(state = :free, context = nil)
 				@state = state
 				@context = context
-				@index = 0
 			end
 			
 			INDICATORS = {
@@ -53,8 +52,6 @@ module Sus
 			end
 			
 			def print(output)
-				message = @message
-				
 				output.write(
 					@state, self.indicator, " "
 				)

@@ -5,6 +5,9 @@ def initialize(root, paths)
 	super
 	
 	@covered = Covered::Config.load
+end
+
+def before_tests
 	@covered&.enable
 end
 
